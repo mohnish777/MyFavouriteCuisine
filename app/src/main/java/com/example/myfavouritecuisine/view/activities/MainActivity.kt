@@ -1,4 +1,4 @@
-package com.example.myfavouritecuisine
+package com.example.myfavouritecuisine.view.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -6,6 +6,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.example.myfavouritecuisine.R
 import com.example.myfavouritecuisine.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 

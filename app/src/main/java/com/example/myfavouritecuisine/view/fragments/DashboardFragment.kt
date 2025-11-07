@@ -1,4 +1,4 @@
-package com.example.myfavouritecuisine.ui.dashboard
+package com.example.myfavouritecuisine.view.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.myfavouritecuisine.databinding.FragmentDashboardBinding
+import com.example.myfavouritecuisine.viewmodel.DashboardViewModel
 
 class DashboardFragment : Fragment() {
 

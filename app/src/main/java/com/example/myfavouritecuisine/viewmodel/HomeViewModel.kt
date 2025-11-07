@@ -1,4 +1,4 @@
-package com.example.myfavouritecuisine.ui.home
+package com.example.myfavouritecuisine.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
