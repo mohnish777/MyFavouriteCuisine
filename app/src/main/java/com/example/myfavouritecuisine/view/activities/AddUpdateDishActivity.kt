@@ -3,11 +3,14 @@ package com.example.myfavouritecuisine.view.activities
 import android.Manifest
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.ContentValues
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.provider.Settings
 import android.view.View
 import androidx.activity.enableEdgeToEdge
@@ -33,6 +36,24 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
     private val cameraLauncher = registerForActivityResult(
         ActivityResultContracts.TakePicturePreview(),
     ) { bitmap: Bitmap? ->
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, "dish_image.jpg")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            put(MediaStore.Images.Media.RELATIVE_PATH,
+                Environment.DIRECTORY_PICTURES + "/MyFavouriteCuisine")
+        }
+
+        val uri = contentResolver.insert(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            contentValues
+        )
+
+        uri?.let {
+            contentResolver.openOutputStream(it)?.use { outputStream ->
+                bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+            }
+        }
+
         if (bitmap!=null) {
             Glide
                 .with(this)
@@ -122,31 +143,7 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
                     .onSameThread()
                     .check()
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                // Android 10-12L (API 29-32)
-                Dexter.withContext(this)
-                    .withPermissions(
-                        Manifest.permission.CAMERA,
-                        Manifest.permission.READ_EXTERNAL_STORAGE
-                    )
-                    .withListener(object: MultiplePermissionsListener{
-                        override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
-                            report?.let {
-                                if(report.areAllPermissionsGranted()) {
-                                    cameraLauncher.launch(null)
-                                } else {
-                                    showRationalDialogForPermissions()
-                                }
-                            }
-
-                        }
-
-                        override fun onPermissionRationaleShouldBeShown(
-                            p0: List<PermissionRequest?>?,
-                            p1: PermissionToken?
-                        ) {
-                            showRationalDialogForPermissions()
-                        }
-                    })
+                openCamera()
             } else {
                 // Android 9 and below (API ≤ 28)
                 Dexter.withContext(this)
@@ -228,6 +225,33 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
     }
 
 
+    private fun openCamera() {
+        // Android 10-12L (API 29-32)
+        Dexter.withContext(this)
+            .withPermissions(
+                Manifest.permission.CAMERA,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+            .withListener(object: MultiplePermissionsListener{
+                override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+                    report?.let {
+                        if(report.areAllPermissionsGranted()) {
+                            cameraLauncher.launch(null)
+                        } else {
+                            showRationalDialogForPermissions()
+                        }
+                    }
+
+                }
+
+                override fun onPermissionRationaleShouldBeShown(
+                    p0: List<PermissionRequest?>?,
+                    p1: PermissionToken?
+                ) {
+                    showRationalDialogForPermissions()
+                }
+            })
+    }
     private fun showRationalDialogForPermissions() {
         AlertDialog.Builder(this)
             .setMessage("It looks like you have turned off permissions required for this feature." +
