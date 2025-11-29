@@ -5,18 +5,25 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.ContentValues
 import android.content.Intent
-import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.provider.Settings
+import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.example.myfavouritecuisine.R
 import com.example.myfavouritecuisine.databinding.ActivityAddUpdateDishBinding
 import com.example.myfavouritecuisine.databinding.DialogCustomImageSelectionBinding
@@ -32,46 +39,98 @@ import com.karumi.dexter.listener.single.PermissionListener
 class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var mBinding: ActivityAddUpdateDishBinding
+    private var currentPhotoUri: Uri? = null
 
     private val cameraLauncher = registerForActivityResult(
-        ActivityResultContracts.TakePicturePreview(),
-    ) { bitmap: Bitmap? ->
-        val contentValues = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, "dish_image.jpg")
-            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-            put(MediaStore.Images.Media.RELATIVE_PATH,
-                Environment.DIRECTORY_PICTURES + "/MyFavouriteCuisine")
-        }
-
-        val uri = contentResolver.insert(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            contentValues
-        )
-
-        uri?.let {
-            contentResolver.openOutputStream(it)?.use { outputStream ->
-                bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-            }
-        }
-
-        if (bitmap!=null) {
-            Glide
-                .with(this)
-                .load(bitmap)
-                .circleCrop()
-                .into(mBinding.ivDishImage);
+        ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        if(result.resultCode == RESULT_OK) {
+            currentPhotoUri?.let {
+                Glide
+                    .with(this)
+                    .load(it)
+                    .circleCrop()
+                    .into(mBinding.ivDishImage);
             mBinding.ivAddDishImage.setImageResource(R.drawable.ic_vector_edit)
-
-
+            }
+        } else {
+            // user cancelled, delete the empty entry
+            currentPhotoUri?.let {
+                contentResolver.delete(it, null, null)
+            }
         }
     }
 
     private val galleryLauncher = registerForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        if(uri!=null) {
-            mBinding.ivDishImage.setImageURI(uri)
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+
+        if (result.resultCode == RESULT_OK) {
+            result.data?.data?.let { sourceUri ->
+                copyImageToInternalStorage(sourceUri)
+                Glide
+                    .with(this)
+                    .load(currentPhotoUri)
+                    .circleCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .listener(object : RequestListener<Drawable> {
+                        override fun onLoadFailed(
+                            e: GlideException?,
+                            model: Any?,
+                            target: Target<Drawable?>?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            return false
+                        }
+
+                        override fun onResourceReady(
+                            resource: Drawable?,
+                            model: Any?,
+                            target: Target<Drawable?>?,
+                            dataSource: DataSource?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            dataSource?.let {
+                                if (it == DataSource.REMOTE) {
+                                    copyImageToInternalStorage(sourceUri)
+                                }
+                            }
+                            return false
+                        }
+
+                    })
+                    .into(mBinding.ivDishImage);
             mBinding.ivAddDishImage.setImageResource(R.drawable.ic_vector_edit)
+            }
+        }
+
+    }
+
+    private fun copyImageToInternalStorage(sourceUri: Uri) : Boolean {
+        try {
+            val contentValues = ContentValues().apply {
+                put(MediaStore.Images.Media.DISPLAY_NAME, "dish_image.jpg")
+                put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+                put(MediaStore.Images.Media.RELATIVE_PATH,
+                    Environment.DIRECTORY_PICTURES + "/MyFavouriteCuisine")
+            }
+            val destinationUri = contentResolver.insert(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues
+            )
+            destinationUri?.let { destUri ->
+                contentResolver.openInputStream(sourceUri)?.use { inputStream ->
+                    contentResolver.openOutputStream(destUri)?.use { outputStream ->
+                        inputStream.copyTo(outputStream)
+                    }
+                }
+                currentPhotoUri = destUri
+            }
+            return true
+        } catch (ex: Exception) {
+            Log.e("AddUpdateDishActivity", "copyImageToInternalStorage: ", ex)
+            Toast.makeText(this, "Failed to copy image", Toast.LENGTH_SHORT).show()
+            return false
         }
     }
 
@@ -82,7 +141,6 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(mBinding.root)
         setUpActionBar()
         mBinding.ivAddDishImage.setOnClickListener(this)
-
     }
 
 
@@ -124,12 +182,11 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
                         override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
                             report?.let {
                                 if(report.areAllPermissionsGranted()) {
-                                    cameraLauncher.launch(null)
+                                    storeImageAfterCameraLaunch()
                                 } else {
                                     showRationalDialogForPermissions()
                                 }
                             }
-
                         }
 
                         override fun onPermissionRationaleShouldBeShown(
@@ -154,8 +211,7 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
                     )
                     .withListener(object: MultiplePermissionsListener{
                         override fun onPermissionsChecked(p0: MultiplePermissionsReport?) {
-                            print("Not yet implemented image selection")
-
+                            storeImageAfterCameraLaunch()
                         }
 
                         override fun onPermissionRationaleShouldBeShown(
@@ -181,7 +237,9 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
                         override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
                             report?.let {
                                 if(report.areAllPermissionsGranted()) {
-                                    galleryLauncher.launch("image/*")
+                                    val galleryIntent = Intent(Intent.ACTION_PICK)
+                                    galleryIntent.type = "image/*"
+                                    galleryLauncher.launch(galleryIntent)
                                 } else {
                                     showRationalDialogForPermissions()
                                 }
@@ -236,7 +294,7 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
                 override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
                     report?.let {
                         if(report.areAllPermissionsGranted()) {
-                            cameraLauncher.launch(null)
+                            storeImageAfterCameraLaunch()
                         } else {
                             showRationalDialogForPermissions()
                         }
@@ -251,6 +309,27 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
                     showRationalDialogForPermissions()
                 }
             })
+    }
+
+    private fun storeImageAfterCameraLaunch() {
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, "dish_image.jpg")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            put(MediaStore.Images.Media.RELATIVE_PATH,
+                Environment.DIRECTORY_PICTURES + "/MyFavouriteCuisine")
+        }
+
+        currentPhotoUri = contentResolver.insert(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            contentValues
+        )
+
+        currentPhotoUri?.let { uri ->
+            val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
+            cameraLauncher.launch(cameraIntent)
+        }
+
     }
     private fun showRationalDialogForPermissions() {
         AlertDialog.Builder(this)
