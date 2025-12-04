@@ -15,7 +15,13 @@
         android:textSize="@dimen/_16sdp"
         android:textStyle="bold" />
 
-    
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:visibility="visible"
+        />
 
 
 </LinearLayout>

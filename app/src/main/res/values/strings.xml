@@ -16,4 +16,5 @@
     <string name="lbl_gallery">Gallery\n</string>
     <string name="title_select_image">Select Image</string>
     <string name="dialog_title">Dialog Title</string>
+    <string name="item_value">Item Value</string>
 </resources>
