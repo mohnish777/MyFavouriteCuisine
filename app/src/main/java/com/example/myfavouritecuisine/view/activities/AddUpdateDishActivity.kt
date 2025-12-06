@@ -18,6 +18,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -27,6 +28,9 @@ import com.bumptech.glide.request.target.Target
 import com.example.myfavouritecuisine.R
 import com.example.myfavouritecuisine.databinding.ActivityAddUpdateDishBinding
 import com.example.myfavouritecuisine.databinding.DialogCustomImageSelectionBinding
+import com.example.myfavouritecuisine.databinding.DialogCustomListBinding
+import com.example.myfavouritecuisine.utils.Constants
+import com.example.myfavouritecuisine.view.adapter.CustomListItemAdapters
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -36,10 +40,12 @@ import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import com.karumi.dexter.listener.single.PermissionListener
 
-class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
+class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener, CustomListItemAdapters.onItemClickListener {
 
     private lateinit var mBinding: ActivityAddUpdateDishBinding
     private var currentPhotoUri: Uri? = null
+
+    private lateinit var mCustomListDialog: Dialog
 
     private val cameraLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
@@ -141,6 +147,10 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(mBinding.root)
         setUpActionBar()
         mBinding.ivAddDishImage.setOnClickListener(this)
+        mBinding.etType.setOnClickListener(this)
+        mBinding.etCategory.setOnClickListener(this)
+        mBinding.etCookingTime.setOnClickListener(this)
+        mBinding.btnAddDish.setOnClickListener(this)
     }
 
 
@@ -154,19 +164,109 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(p0: View?) {
         if(p0!=null) {
-            when(p0.id){
+            when (p0.id) {
                 R.id.iv_add_dish_image -> {
                     customImageSelectionDialog()
+                    return
+                }
+
+                R.id.et_type -> {
+                    customItemDialog(
+                        "Select Dish Type",
+                        Constants.dishType(),
+                        Constants.DISH_TYPE
+                    )
+                    return
+                }
+
+                R.id.et_category -> {
+                    customItemDialog(
+                        "Select Dish Category",
+                        Constants.dishCategory(),
+                        Constants.DISH_CATEGORY
+                    )
+                    return
+                }
+
+                R.id.et_cooking_time -> {
+                    customItemDialog(
+                        "Select Dish Cooking Time",
+                        Constants.dishCookingTime(),
+                        Constants.DISH_COOKING_TIME
+                    )
+                    return
+                }
+
+                R.id.btn_add_dish -> {
+                    val title = mBinding.etTitle.text.toString().trim()
+                    val type = mBinding.etType.text.toString().trim()
+                    val category = mBinding.etCategory.text.toString().trim()
+                    val ingredients = mBinding.etIngredients.text.toString().trim()
+                    val cookingTime = mBinding.etCookingTime.text.toString().trim()
+                    val directionToCook = mBinding.etDirectionToCook.text.toString().trim()
+                    when {
+                        title.isEmpty() -> {
+                            Toast.makeText(
+                                this,
+                                "Please enter a title.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        type.isEmpty() -> {
+                            Toast.makeText(
+                                this,
+                                "Please select a type.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        category.isEmpty() -> {
+                            Toast.makeText(
+                                this,
+                                "Please select a category.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        ingredients.isEmpty() -> {
+                            Toast.makeText(
+                                this,
+                                "Please enter ingredients.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        cookingTime.isEmpty() -> {
+                            Toast.makeText(
+                                this,
+                                "Please select cooking time.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        directionToCook.isEmpty() -> {
+                            Toast.makeText(
+                                this,
+                                "Please enter direction to cook.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        else -> {
+                            Toast.makeText(
+                                this,
+                                "All the details are entered.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+
                 }
             }
         }
     }
 
     fun customImageSelectionDialog() {
-        val dialog = Dialog(this)
+        mCustomListDialog = Dialog(this)
         val binding = DialogCustomImageSelectionBinding.inflate(layoutInflater)
-        dialog.setContentView(binding.root)
-        dialog.show()
+        mCustomListDialog.setContentView(binding.root)
+        mCustomListDialog.show()
 
         binding.tvCamera.setOnClickListener {
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
@@ -222,7 +322,7 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
                         }
                     })
             }
-            dialog.dismiss()
+            mCustomListDialog.dismiss()
 
         }
         binding.tvGallery.setOnClickListener {
@@ -278,7 +378,7 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
 
                     })
             }
-            dialog.dismiss()
+            mCustomListDialog.dismiss()
         }
     }
 
@@ -351,9 +451,37 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
             }
             .show()
     }
+    private fun customItemDialog(title: String, items: ArrayList<String>, selection: String) {
+        mCustomListDialog = Dialog(this)
+        val binding = DialogCustomListBinding.inflate(layoutInflater)
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+        mCustomListDialog.setContentView(binding.root)
+        binding.tvTitle.text = title
+        val adapter = CustomListItemAdapters(items, selection, this)
+        binding.rvList.layoutManager = LinearLayoutManager(this)
+        binding.rvList.adapter = adapter
+        mCustomListDialog.show()
+
+    }
+
+    override fun onItemOnClick(item: String, selection: String) {
+        when (selection) {
+
+            Constants.DISH_TYPE -> {
+                mCustomListDialog.dismiss()
+                mBinding.etType.setText(item)
+            }
+
+            Constants.DISH_CATEGORY -> {
+                mCustomListDialog.dismiss()
+                mBinding.etCategory.setText(item)
+            }
+
+            Constants.DISH_COOKING_TIME -> {
+                mCustomListDialog.dismiss()
+                mBinding.etCookingTime.setText(item)
+            }
+        }
     }
 
     companion object {
