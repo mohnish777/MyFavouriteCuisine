@@ -17,6 +17,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -29,8 +30,10 @@ import com.example.myfavouritecuisine.R
 import com.example.myfavouritecuisine.databinding.ActivityAddUpdateDishBinding
 import com.example.myfavouritecuisine.databinding.DialogCustomImageSelectionBinding
 import com.example.myfavouritecuisine.databinding.DialogCustomListBinding
+import com.example.myfavouritecuisine.model.entities.FavDish
 import com.example.myfavouritecuisine.utils.Constants
 import com.example.myfavouritecuisine.view.adapter.CustomListItemAdapters
+import com.example.myfavouritecuisine.viewmodel.FavDishViewModel
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -46,6 +49,8 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener, CustomL
     private var currentPhotoUri: Uri? = null
 
     private lateinit var mCustomListDialog: Dialog
+
+    private val viewModel: FavDishViewModel by viewModels { FavDishViewModel.Factory }
 
     private val cameraLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
@@ -73,10 +78,9 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener, CustomL
 
         if (result.resultCode == RESULT_OK) {
             result.data?.data?.let { sourceUri ->
-                copyImageToInternalStorage(sourceUri)
                 Glide
                     .with(this)
-                    .load(currentPhotoUri)
+                    .load(sourceUri)
                     .circleCrop()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .listener(object : RequestListener<Drawable> {
@@ -97,8 +101,30 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener, CustomL
                             isFirstResource: Boolean
                         ): Boolean {
                             dataSource?.let {
-                                if (it == DataSource.REMOTE) {
-                                    copyImageToInternalStorage(sourceUri)
+                                when (it) {
+                                    DataSource.LOCAL -> {
+                                        Log.d("mohnishUriCheck", "onResourceReady: LOCAL ")
+                                        copyImageToInternalStorage(sourceUri)
+                                    }
+                                    DataSource.DATA_DISK_CACHE ->{
+                                        Log.d("mohnishUriCheck", "onResourceReady: DATA_DISK_CACHE ")
+
+
+                                    }
+                                    DataSource.RESOURCE_DISK_CACHE ->  {
+                                        copyImageToInternalStorage(sourceUri)
+                                        Log.d("mohnishUriCheck", "onResourceReady: RESOURCE_DISK_CACHE ")
+
+                                    }
+                                    DataSource.REMOTE -> {
+                                        Log.d("mohnishUriCheck", "onResourceReady: REMOTE ")
+
+                                        copyImageToInternalStorage(sourceUri)
+                                    }
+                                    DataSource.MEMORY_CACHE -> {
+                                        Log.d("mohnishUriCheck", "onResourceReady: MEMORY_CACHE ")
+
+                                    }
                                 }
                             }
                             return false
@@ -130,6 +156,7 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener, CustomL
                         inputStream.copyTo(outputStream)
                     }
                 }
+                Log.d("mohnishUriCheck", "copyImageToInternalStorage: $destUri")
                 currentPhotoUri = destUri
             }
             return true
@@ -249,11 +276,25 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener, CustomL
                         }
 
                         else -> {
+                            val favDish = FavDish(
+                                id = 0,
+                                image = currentPhotoUri.toString(),
+                                imageSource = Constants.DISH_IMAGE_SOURCE_LOCAL,
+                                title = title,
+                                type = type,
+                                category = category,
+                                ingredients = ingredients,
+                                cookingTime = cookingTime,
+                                directionToCook = directionToCook,
+                                favoriteDish = false,
+                            )
+                            viewModel.insert(favDish)
                             Toast.makeText(
                                 this,
                                 "All the details are entered.",
                                 Toast.LENGTH_SHORT
                             ).show()
+                            finish()
                         }
                     }
 

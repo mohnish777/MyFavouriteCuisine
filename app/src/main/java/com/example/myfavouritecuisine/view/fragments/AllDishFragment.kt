@@ -2,23 +2,32 @@ package com.example.myfavouritecuisine.view.fragments
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.myfavouritecuisine.R
 import com.example.myfavouritecuisine.databinding.FragmentAllDishesBinding
+import com.example.myfavouritecuisine.utils.Constants
 import com.example.myfavouritecuisine.view.activities.AddUpdateDishActivity
-import com.example.myfavouritecuisine.viewmodel.HomeViewModel
+import com.example.myfavouritecuisine.view.adapter.FavDishAdapter
+import com.example.myfavouritecuisine.viewmodel.FavDishViewModel
+import kotlinx.coroutines.launch
 
 class AllDishFragment : Fragment() {
 
     private var _binding: FragmentAllDishesBinding? = null
+
+    private val viewModel: FavDishViewModel by viewModels { FavDishViewModel.Factory }
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -34,17 +43,51 @@ class AllDishFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val homeViewModel =
-            ViewModelProvider(this).get(HomeViewModel::class.java)
-
         _binding = FragmentAllDishesBinding.inflate(inflater, container, false)
         val root: View = binding.root
-
-        val textView: TextView = binding.textHome
-        homeViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
         return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        observeAllDishList()
+    }
+
+    fun observeAllDishList() {
+        binding.rvDishesList.layoutManager = GridLayoutManager(requireContext(), 2)
+        val favDishAdapter = FavDishAdapter(this)
+        binding.rvDishesList.adapter = favDishAdapter
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.allDishListState.collect {
+                    when (it) {
+                        Constants.UiState.Idle -> {
+                            // Do nothing
+                        }
+                        Constants.UiState.Loading -> {
+                            // Show progress bar
+                        }
+                        is Constants.UiState.Success -> {
+                            // Hide progress bar and show data
+                            if (it.data.isNotEmpty()) {
+                                it.data.forEach { dish ->
+                                    Log.d("mohnishUriCheck", "observeAllDishList: ${dish.title}")
+                                }
+                                binding.rvDishesList.visibility = View.VISIBLE
+                                binding.tvNoDishesAddedYet.visibility = View.GONE
+                                favDishAdapter.dishList(it.data)
+                            } else {
+                                binding.rvDishesList.visibility = View.GONE
+                                binding.tvNoDishesAddedYet.visibility = View.VISIBLE
+                            }
+                        }
+                        is Constants.UiState.Error -> {
+                            // Hide progress bar and show error
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

@@ -6,6 +6,9 @@ object Constants {
     const val DISH_CATEGORY: String = "DishCategory"
     const val DISH_COOKING_TIME: String = "DishCookingTime"
 
+    const val DISH_IMAGE_SOURCE_LOCAL = "Local"
+    const val DISH_IMAGE_SOURCE_ONLINE = "Online"
+
     fun dishType(): ArrayList<String> {
         val list: ArrayList<String> = ArrayList()
         list.add("breakfast")
@@ -50,5 +53,14 @@ object Constants {
         list.add("150")
         list.add("180")
         return list
+    }
+
+
+    sealed class UiState< out T> {
+        object Idle: UiState<Nothing>()
+        object Loading: UiState<Nothing>()
+        data class Success<T>(val data: T): UiState<T>()
+        data class Error(val message: String, val exception: Throwable): UiState<Nothing>()
+
     }
 }

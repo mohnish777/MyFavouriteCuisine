@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">My Favourite Cuisine</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_home">All Dishes</string>
+    <string name="title_dashboard">Favourite</string>
+    <string name="title_notifications">Random Dish</string>
     <string name="splash_screen_title">My Fav Dish</string>
     <string name="title_activity_splash">Favourite Cuisine</string>
     <string name="add_dish">Add Dish</string>
@@ -18,4 +18,7 @@
     <string name="dialog_title">Dialog Title</string>
     <string name="item_value">Item Value</string>
     <string name="type">type</string>
+    <string name="no_dishes_added_yet">No dishes added yet</string>
+    <string name="dish_image">Dish Image</string>
+    <string name="dish_title">Dish Title</string>
 </resources>
