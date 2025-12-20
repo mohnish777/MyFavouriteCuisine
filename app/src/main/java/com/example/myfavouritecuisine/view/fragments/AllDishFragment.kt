@@ -14,11 +14,14 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.myfavouritecuisine.R
 import com.example.myfavouritecuisine.databinding.FragmentAllDishesBinding
+import com.example.myfavouritecuisine.model.entities.FavDish
 import com.example.myfavouritecuisine.utils.Constants
 import com.example.myfavouritecuisine.view.activities.AddUpdateDishActivity
+import com.example.myfavouritecuisine.view.activities.MainActivity
 import com.example.myfavouritecuisine.view.adapter.FavDishAdapter
 import com.example.myfavouritecuisine.viewmodel.FavDishViewModel
 import kotlinx.coroutines.launch
@@ -32,6 +35,7 @@ class AllDishFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+    private lateinit var favDishAdapter: FavDishAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,12 +55,12 @@ class AllDishFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         observeAllDishList()
+        favDishAdapter = FavDishAdapter(this)
+        binding.rvDishesList.adapter = favDishAdapter
     }
 
     fun observeAllDishList() {
         binding.rvDishesList.layoutManager = GridLayoutManager(requireContext(), 2)
-        val favDishAdapter = FavDishAdapter(this)
-        binding.rvDishesList.adapter = favDishAdapter
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.allDishListState.collect {
@@ -103,6 +107,22 @@ class AllDishFragment : Fragment() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    fun dishDetails(favDish: FavDish) {
+        findNavController().navigate(AllDishFragmentDirections.actionNavigationAllDishesToNavigationDishDetails(
+            dishDetails = favDish
+        ))
+        if(requireActivity() is MainActivity) {
+            (activity as MainActivity).hideBottomNavigationView()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if(requireActivity() is MainActivity) {
+            (activity as MainActivity).showBottomNavigationView()
+        }
     }
 
     override fun onDestroyView() {

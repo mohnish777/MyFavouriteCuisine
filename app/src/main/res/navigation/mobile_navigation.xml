@@ -9,7 +9,11 @@
         android:id="@+id/navigation_all_dishes"
         android:name="com.example.myfavouritecuisine.view.fragments.AllDishFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_all_dishes" />
+        tools:layout="@layout/fragment_all_dishes" >
+        <action
+            android:id="@+id/action_navigation_all_dishes_to_navigation_dish_details"
+            app:destination="@id/navigation_dish_details" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_favourite_dishes"
@@ -22,4 +26,19 @@
         android:name="com.example.myfavouritecuisine.view.fragments.RandomDishFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_random_dish" />
+
+    <fragment
+        android:id="@+id/navigation_dish_details"
+        android:name="com.example.myfavouritecuisine.view.fragments.DishDetailsFragment"
+        android:label="Dish Details"
+        tools:layout="@layout/fragment_dish_details">
+
+        <argument
+            android:name="dishDetails"
+            app:argType="com.example.myfavouritecuisine.model.entities.FavDish"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+
+
 </navigation>
