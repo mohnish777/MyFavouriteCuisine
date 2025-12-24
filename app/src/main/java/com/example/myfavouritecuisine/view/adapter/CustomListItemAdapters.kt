@@ -12,7 +12,6 @@ class CustomListItemAdapters(
 ): RecyclerView.Adapter<CustomListItemAdapters.ViewHolder>() {
 
     // add listener
-
     interface onItemClickListener {
         fun onItemOnClick(item: String, selection: String)
     }

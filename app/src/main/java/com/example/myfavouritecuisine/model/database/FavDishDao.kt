@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.myfavouritecuisine.model.entities.FavDish
 import kotlinx.coroutines.flow.Flow
 
@@ -15,4 +16,13 @@ interface FavDishDao {
 
     @Query("SELECT * FROM FAV_DISHES_TABLE ORDER BY ID ")
     fun getAllDishList(): Flow<List<FavDish>>
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateDishes(favDish: FavDish)
+
+    @Query( "SELECT * FROM FAV_DISHES_TABLE WHERE id= :id LIMIT 1")
+    fun getFavDishDetailsById(id: Int): Flow<FavDish>
+
+    @Query("SELECT * FROM FAV_DISHES_TABLE WHERE favoriteDish = 1 ORDER BY id")
+    fun getFavouriteDishes(): Flow<List<FavDish>>
 }

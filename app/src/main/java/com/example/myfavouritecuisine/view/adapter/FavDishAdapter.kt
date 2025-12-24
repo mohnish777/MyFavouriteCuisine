@@ -9,6 +9,7 @@ import com.bumptech.glide.Glide
 import com.example.myfavouritecuisine.databinding.ItemDishLayoutBinding
 import com.example.myfavouritecuisine.model.entities.FavDish
 import com.example.myfavouritecuisine.view.fragments.AllDishFragment
+import com.example.myfavouritecuisine.view.fragments.FavouriteDishesFragment
 
 class FavDishAdapter(
     private val fragment: Fragment
@@ -39,7 +40,14 @@ class FavDishAdapter(
             .into(holder.ivDishImage)
         holder.tvDishTitle.text = dish.title
         holder.itemView.setOnClickListener {
-            (fragment as AllDishFragment).dishDetails(dishes[position])
+            when(fragment) {
+                is AllDishFragment -> {
+                    fragment.dishDetails(dishes[position])
+                }
+                is FavouriteDishesFragment -> {
+
+                }
+            }
         }
     }
 

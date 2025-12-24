@@ -42,4 +42,15 @@ class FavDishRepository(
         return favDishDao.getAllDishList()
     }
 
+    suspend fun updateDishes(favDish: FavDish) {
+        favDishDao.updateDishes(favDish)
+    }
+
+    suspend fun getDishDetailsById(id: Int): Flow<FavDish>  {
+        return favDishDao.getFavDishDetailsById(id)
+    }
+
+    suspend fun getFavouriteDishes(): Flow<List<FavDish>> {
+        return favDishDao.getFavouriteDishes()
+    }
 }

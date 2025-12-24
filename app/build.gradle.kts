@@ -85,4 +85,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     testImplementation(libs.kotlinx.coroutines.test)
 
+    // palette
+    implementation(libs.androidx.palette)
+
 }
