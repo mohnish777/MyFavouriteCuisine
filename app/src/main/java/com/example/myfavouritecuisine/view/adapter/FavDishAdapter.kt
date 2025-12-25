@@ -1,13 +1,20 @@
 package com.example.myfavouritecuisine.view.adapter
 
+import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.myfavouritecuisine.R
 import com.example.myfavouritecuisine.databinding.ItemDishLayoutBinding
 import com.example.myfavouritecuisine.model.entities.FavDish
+import com.example.myfavouritecuisine.utils.Constants
+import com.example.myfavouritecuisine.view.activities.AddUpdateDishActivity
 import com.example.myfavouritecuisine.view.fragments.AllDishFragment
 import com.example.myfavouritecuisine.view.fragments.FavouriteDishesFragment
 
@@ -20,6 +27,7 @@ class FavDishAdapter(
     inner class ViewHolder(view: ItemDishLayoutBinding) : RecyclerView.ViewHolder(view.root) {
         val ivDishImage = view.ivDishImage
         val tvDishTitle = view.tvDishTitle
+        val ibMore = view.ibMore
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FavDishAdapter.ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -48,6 +56,36 @@ class FavDishAdapter(
                     fragment.dishDetails(dishes[position])
                 }
             }
+        }
+
+        holder.ibMore.setOnClickListener {
+            val popup = PopupMenu(fragment.requireContext(), it)
+            val inflater: MenuInflater = popup.menuInflater
+            inflater.inflate(R.menu.menu_adapter, popup.menu)
+            popup.setOnMenuItemClickListener { item ->
+                when(item.itemId) {
+                    R.id.action_edit_dish -> {
+                        val intent = Intent(fragment.requireActivity(), AddUpdateDishActivity::class.java)
+                        intent.putExtra(Constants.EXTRA_DISH_DETAILS, dish)
+                        fragment.requireActivity().startActivity(intent)
+                        true
+                    }
+                    R.id.delete_dish -> {
+                        Log.d("mohnishUriCheck", "onBindViewHolder: delete dish")
+                        true
+                    }
+                    else -> {
+                        false
+                    }
+                }
+            }
+            popup.show()
+        }
+
+        if(fragment is AllDishFragment) {
+            holder.ibMore.visibility = View.VISIBLE
+        } else if(fragment is FavouriteDishesFragment) {
+            holder.ibMore.visibility = View.GONE
         }
     }
 
