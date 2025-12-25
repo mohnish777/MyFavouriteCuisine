@@ -45,7 +45,7 @@ class FavDishAdapter(
                     fragment.dishDetails(dishes[position])
                 }
                 is FavouriteDishesFragment -> {
-
+                    fragment.dishDetails(dishes[position])
                 }
             }
         }

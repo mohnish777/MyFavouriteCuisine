@@ -9,9 +9,13 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.myfavouritecuisine.R
 import com.example.myfavouritecuisine.databinding.FragmentFavouriteDishesBinding
+import com.example.myfavouritecuisine.model.entities.FavDish
 import com.example.myfavouritecuisine.utils.Constants
+import com.example.myfavouritecuisine.view.activities.MainActivity
 import com.example.myfavouritecuisine.view.adapter.FavDishAdapter
 import com.example.myfavouritecuisine.viewmodel.FavDishViewModel
 import kotlinx.coroutines.launch
@@ -79,6 +83,27 @@ class FavouriteDishesFragment : Fragment() {
                     }
                 }
             }
+        }
+    }
+
+    fun dishDetails(favDish: FavDish) {
+        if(findNavController().currentDestination?.id == R.id.navigation_favourite_dishes) {
+            findNavController().navigate(
+                FavouriteDishesFragmentDirections.actionNavigationFavouriteDishesToNavigationDishDetails(
+                    dishDetails = favDish
+                )
+            )
+        }
+
+        if(requireActivity() is MainActivity) {
+            (activity as MainActivity).hideBottomNavigationView()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if(requireActivity() is MainActivity) {
+            (activity as MainActivity).showBottomNavigationView()
         }
     }
 
