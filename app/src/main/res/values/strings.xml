@@ -6,6 +6,7 @@
     <string name="splash_screen_title">My Fav Dish</string>
     <string name="title_activity_splash">Favourite Cuisine</string>
     <string name="add_dish">Add Dish</string>
+    <string name="filter_dish">Filter Dish</string>
     <string name="lbl_title">Title</string>
     <string name="lbl_category">category\n</string>
     <string name="lbl_ingredients">ingridents\n</string>
@@ -27,5 +28,7 @@
     <string name="lbl_estimate_cooking_time">The approx time required to cook the dish is %1$s minutes</string>
     <string name="more_option_button">more option button</string>
     <string name="edit_dish">Edit Dish</string>
+    <string name="lbl_update_dish">update dish</string>
     <string name="delete_dish">delete dish</string>
+    <string name="select_item_to_filter">Select Item To Filter</string>
 </resources>

@@ -88,4 +88,14 @@ dependencies {
     // palette
     implementation(libs.androidx.palette)
 
+    //retrofit
+    implementation(libs.gson)
+    implementation(libs.retrofit)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.converter.gson)
+    implementation(libs.adapter.rxjava3)
+    //RxJava
+    implementation(libs.rxjava)
+    implementation(libs.rxandroid)
+
 }

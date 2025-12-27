@@ -1,6 +1,7 @@
 package com.example.myfavouritecuisine.model.database
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -25,4 +26,10 @@ interface FavDishDao {
 
     @Query("SELECT * FROM FAV_DISHES_TABLE WHERE favoriteDish = 1 ORDER BY id")
     fun getFavouriteDishes(): Flow<List<FavDish>>
+
+    @Delete
+    suspend fun deleteDish(favDish: FavDish)
+
+    @Query("SELECT * FROM FAV_DISHES_TABLE WHERE type = :type ORDER BY id")
+    fun getDishesByType(type: String): Flow<List<FavDish>>
 }

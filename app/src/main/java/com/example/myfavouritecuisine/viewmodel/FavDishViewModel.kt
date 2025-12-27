@@ -50,6 +50,12 @@ class FavDishViewModel(
         }
     }
 
+    fun deleteDish(favDish: FavDish) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteDish(favDish)
+        }
+    }
+
     fun observeFavoriteStatus(id: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getDishDetailsById(id).catch {
@@ -105,6 +111,32 @@ class FavDishViewModel(
             }
         }
     }
+
+    fun filterDishByType(type: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if(type == Constants.ALL_TYPES) {
+                loadAllDish()
+            } else {
+                try {
+                    _allDishListState.value = Constants.UiState.Loading
+                    repository.getDishesByType(type).catch {
+                        _allDishListState.value = Constants.UiState.Error(
+                            message = it.message ?: "Error loading filtered dishes",
+                            exception = it
+                        )
+                    }.collect {
+                        _allDishListState.value = Constants.UiState.Success(it)
+                    }
+
+                } catch (ex: Exception) {
+
+                }
+            }
+
+        }
+    }
+
+
 
 
 

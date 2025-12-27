@@ -71,6 +71,7 @@ class FavDishAdapter(
                         true
                     }
                     R.id.delete_dish -> {
+                        (fragment as AllDishFragment).deleteDialog(dish)
                         Log.d("mohnishUriCheck", "onBindViewHolder: delete dish")
                         true
                     }

@@ -46,11 +46,18 @@ class FavDishRepository(
         favDishDao.updateDishes(favDish)
     }
 
+    suspend fun deleteDish(favDish: FavDish) {
+        favDishDao.deleteDish(favDish)
+    }
+
     suspend fun getDishDetailsById(id: Int): Flow<FavDish>  {
         return favDishDao.getFavDishDetailsById(id)
     }
-
-    suspend fun getFavouriteDishes(): Flow<List<FavDish>> {
+    fun getFavouriteDishes(): Flow<List<FavDish>> {
         return favDishDao.getFavouriteDishes()
+    }
+
+    fun getDishesByType(type: String): Flow<List<FavDish>> {
+        return favDishDao.getDishesByType(type)
     }
 }

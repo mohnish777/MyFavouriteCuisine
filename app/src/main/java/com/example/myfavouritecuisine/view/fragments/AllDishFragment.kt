@@ -1,5 +1,7 @@
 package com.example.myfavouritecuisine.view.fragments
 
+import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -16,12 +18,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myfavouritecuisine.R
+import com.example.myfavouritecuisine.databinding.DialogCustomListBinding
 import com.example.myfavouritecuisine.databinding.FragmentAllDishesBinding
 import com.example.myfavouritecuisine.model.entities.FavDish
 import com.example.myfavouritecuisine.utils.Constants
 import com.example.myfavouritecuisine.view.activities.AddUpdateDishActivity
 import com.example.myfavouritecuisine.view.activities.MainActivity
+import com.example.myfavouritecuisine.view.adapter.CustomListItemAdapters
 import com.example.myfavouritecuisine.view.adapter.FavDishAdapter
 import com.example.myfavouritecuisine.viewmodel.FavDishViewModel
 import kotlinx.coroutines.launch
@@ -105,6 +110,10 @@ class AllDishFragment : Fragment() {
                 startActivity(Intent(requireActivity(), AddUpdateDishActivity::class.java))
                 return true
             }
+            R.id.action_filter_dish -> {
+                filterListDialog()
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -116,6 +125,44 @@ class AllDishFragment : Fragment() {
         if(requireActivity() is MainActivity) {
             (activity as MainActivity).hideBottomNavigationView()
         }
+    }
+
+    fun deleteDialog(dish: FavDish) {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(requireActivity())
+        builder
+            .setMessage("Are you sure you want to delete " + dish.title + "?")
+            .setTitle("Delete Dish")
+            .setPositiveButton("Delete") { dialog, which ->
+                viewModel.deleteDish(dish)
+            }
+            .setNegativeButton("Cancel") { dialog, which ->
+                dialog.dismiss()
+
+            }
+
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
+    }
+
+    private fun filterListDialog() {
+        val customListDialog = Dialog(requireActivity())
+        val binding = DialogCustomListBinding.inflate(layoutInflater)
+        customListDialog.setContentView(binding.root)
+        binding.tvTitle.text = getString(R.string.select_item_to_filter)
+        val dishTypes = Constants.dishType()
+        dishTypes.add(0, Constants.ALL_TYPES)
+        binding.rvList.layoutManager = LinearLayoutManager(requireContext())
+        val adapter = CustomListItemAdapters(dishTypes, Constants.FILTER_SECTION, object: CustomListItemAdapters.onItemClickListener {
+            override fun onItemOnClick(item: String, selection: String) {
+                customListDialog.dismiss()
+                if(selection == Constants.FILTER_SECTION) {
+                    viewModel.filterDishByType(item)
+                }
+            }
+
+        })
+        binding.rvList.adapter = adapter
+        customListDialog.show()
     }
 
     override fun onResume() {
