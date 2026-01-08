@@ -11,7 +11,20 @@ object Constants {
     const val DISH_IMAGE_SOURCE_LOCAL = "Local"
     const val DISH_IMAGE_SOURCE_ONLINE = "Online"
     const val EXTRA_DISH_DETAILS = "DishDetails"
+    const val API_ENDPOINT: String = "/recipes/random"
+    const val INCLUDE_TAGS: String = "include-tags"
+    const val NUMBER: String = "number"
+    const val API_KEY_VAL: String = "apiKey"
+    const val INCLUDE_NUTRITION: String = "includeNutrition"
+    ///
+    const val INCLUDE_TAGS_VAL: String = "vegetarian,vegan"
+    const val NUMBER_VAL: Int = 1
+    const val INCLUDE_NUTRITION_VALUE: Boolean = true
+    const val BASE_URL: String = "https://api.spoonacular.com"
 
+    const val NOTIFICATION_ID = "FavDish_notification_id"
+    const val NOTIFICATION_NAME = "FavDish"
+    const val NOTIFICATION_CHANNEL = "FavDish_channel_01"
     fun dishType(): ArrayList<String> {
         val list: ArrayList<String> = ArrayList()
         list.add("breakfast")

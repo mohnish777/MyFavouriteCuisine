@@ -1,0 +1,6 @@
+package com.example.myfavouritecuisine.model.entities
+
+data class Measures(
+    val metric: Metric,
+    val us: Us
+)

@@ -31,4 +31,9 @@
     <string name="lbl_update_dish">update dish</string>
     <string name="delete_dish">delete dish</string>
     <string name="select_item_to_filter">Select Item To Filter</string>
+    <string name="already_added_to_fav">Dish %1$s is already added to favourite</string>
+    <string name="no_data_found">No data found</string>
+    
+    <string name="notification_title">Check out new dish recipes</string>
+    <string name="notification_subtitle">Tap for more details</string>
 </resources>

@@ -7,8 +7,15 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.myfavouritecuisine.R
 import com.example.myfavouritecuisine.databinding.ActivityMainBinding
+import com.example.myfavouritecuisine.model.notification.NotifyWorker
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,7 +37,27 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(mNavController, appBarConfiguration)
         binding.navView.setupWithNavController(mNavController)
+        startWork()
 
+    }
+
+    private fun createConstraints() = Constraints.Builder()
+        .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+        .setRequiresCharging(false)
+        .setRequiresBatteryNotLow(true)
+        .build()
+
+    private fun createWorkRequest() = PeriodicWorkRequestBuilder<NotifyWorker>(15, TimeUnit.MINUTES)
+        .setConstraints(createConstraints())
+        .build()
+
+    private fun startWork() {
+        WorkManager.getInstance(this)
+            .enqueueUniquePeriodicWork(
+                "Fav Dish Notify Work",
+                ExistingPeriodicWorkPolicy.KEEP,
+                createWorkRequest()
+            )
     }
     fun hideBottomNavigationView() {
         binding.navView.clearAnimation()
