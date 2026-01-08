@@ -1,6 +1,5 @@
 package com.example.myfavouritecuisine.model.notification
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -25,6 +24,7 @@ class NotifyWorker(context: Context, workerParams: WorkerParameters): Worker(con
     override fun doWork(): Result {
         Log.d("mohnishUriCheck", "doWork is called")
         sendNotification()
+        Log.d("mohnishUriCheck", "doWork is completed")
         return Result.success()
     }
 
@@ -75,7 +75,7 @@ class NotifyWorker(context: Context, workerParams: WorkerParameters): Worker(con
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
-            .setPriority(Notification.PRIORITY_MAX)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
             .build()
 
         notificationManager.notify(notification_id, notification)
