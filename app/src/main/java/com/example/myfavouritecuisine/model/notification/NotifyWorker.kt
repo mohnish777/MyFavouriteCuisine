@@ -8,11 +8,10 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.media.Ringtone
+import android.graphics.Color
 import android.media.RingtoneManager
 import android.os.Build
 import android.util.Log
-import androidx.compose.ui.graphics.Color
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
@@ -21,11 +20,11 @@ import androidx.work.WorkerParameters
 import com.example.myfavouritecuisine.R
 import com.example.myfavouritecuisine.utils.Constants
 import com.example.myfavouritecuisine.view.activities.MainActivity
-import kotlinx.coroutines.channels.Channel
 
 class NotifyWorker(context: Context, workerParams: WorkerParameters): Worker(context = context, workerParams = workerParams) {
     override fun doWork(): Result {
         Log.d("mohnishUriCheck", "doWork is called")
+        sendNotification()
         return Result.success()
     }
 
@@ -34,7 +33,6 @@ class NotifyWorker(context: Context, workerParams: WorkerParameters): Worker(con
         val intent = Intent(applicationContext, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         intent.putExtra(Constants.NOTIFICATION_ID, notification_id)
-        applicationContext.startActivity(intent)
 
         val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -49,21 +47,7 @@ class NotifyWorker(context: Context, workerParams: WorkerParameters): Worker(con
 
         val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-        val notification = NotificationCompat.Builder(applicationContext, Constants.NOTIFICATION_CHANNEL)
-            .setSmallIcon(R.drawable.ic_notifications_black_24dp)
-            .setLargeIcon(bitmap)
-            .setContentTitle(title)
-            .setContentText(subtitle)
-            .setStyle(bigPicStyle)
-            .setDefaults(NotificationCompat.DEFAULT_ALL)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-            .build()
-
-
-        notification.priority = Notification.PRIORITY_MAX
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notification.setChannelId(Constants.NOTIFICATION_CHANNEL)
             val ringtoneManager = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             val audioAttributes = android.media.AudioAttributes.Builder()
                 .setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
@@ -75,12 +59,25 @@ class NotifyWorker(context: Context, workerParams: WorkerParameters): Worker(con
                 NotificationManager.IMPORTANCE_HIGH
             )
             channel.enableLights(true)
-            channel.lightColor = Color.Red.value.toInt()
+            channel.lightColor = Color.RED
             channel.enableVibration(true)
             channel.vibrationPattern = longArrayOf(100, 200, 300, 400, 500, 400, 300, 200, 400)
             channel.setSound(ringtoneManager, audioAttributes)
             notificationManager.createNotificationChannel(channel)
         }
+
+        val notification = NotificationCompat.Builder(applicationContext, Constants.NOTIFICATION_CHANNEL)
+            .setSmallIcon(R.drawable.ic_notifications_black_24dp)
+            .setLargeIcon(bitmap)
+            .setContentTitle(title)
+            .setContentText(subtitle)
+            .setStyle(bigPicStyle)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setPriority(Notification.PRIORITY_MAX)
+            .build()
+
         notificationManager.notify(notification_id, notification)
 
     }

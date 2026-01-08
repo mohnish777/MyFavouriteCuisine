@@ -15,6 +15,7 @@ import androidx.work.WorkManager
 import com.example.myfavouritecuisine.R
 import com.example.myfavouritecuisine.databinding.ActivityMainBinding
 import com.example.myfavouritecuisine.model.notification.NotifyWorker
+import com.example.myfavouritecuisine.utils.Constants
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
@@ -37,6 +38,12 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(mNavController, appBarConfiguration)
         binding.navView.setupWithNavController(mNavController)
+        if(intent.hasExtra(Constants.NOTIFICATION_ID)) {
+            val notificationId = intent.getIntExtra(Constants.NOTIFICATION_ID, 0)
+            binding.navView.selectedItemId = R.id.navigation_random_dish
+        }
+
+
         startWork()
 
     }
