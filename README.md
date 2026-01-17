@@ -11,11 +11,54 @@
 
 A modern Android application for managing and discovering your favorite dishes, built with the latest Android development best practices and technologies.
 
-<!-- Uncomment and add your app banner/logo here
-<img src="screenshots/app_banner.png" width="800" alt="App Banner"/>
--->
+</div>
+
+---
+
+## 📸 App Screenshots
+
+<div align="center">
+
+### 🎯 Main Features
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="screenshots/all_dishes.png" width="200" alt="All Dishes"/>
+      <br/><b>All Dishes</b>
+    </td>
+    <td align="center">
+      <img src="screenshots/favorites.png" width="200" alt="Favorite Dishes"/>
+      <br/><b>Favorites</b>
+    </td>
+    <td align="center">
+      <img src="screenshots/dish_details.png" width="200" alt="Dish Details"/>
+      <br/><b>Dish Details</b>
+    </td>
+    <td align="center">
+      <img src="screenshots/add_dish1.png" width="200" alt="Add Dish - Form"/>
+      <br/><b>Add Dish</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="screenshots/add_dish2.png" width="200" alt="Add Dish - Image"/>
+      <br/><b>Image Selection</b>
+    </td>
+    <td align="center">
+      <img src="screenshots/access.png" width="200" alt="Permissions"/>
+      <br/><b>Permissions</b>
+    </td>
+    <td align="center" colspan="2">
+      <i>🚀 More screenshots coming soon...</i>
+      <br/><small>Random Dish, Filter, Notifications</small>
+    </td>
+  </tr>
+</table>
 
 </div>
+
+---
 
 ## 📱 About The Project
 
@@ -173,24 +216,6 @@ API_KEY="your_spoonacular_api_key_here"
 4. Sync Gradle files
 
 5. Run the app on an emulator or physical device
-
-## 📸 Screenshots
-
-<div align="center">
-  <img src="screenshots/splash_screen.png" width="200" alt="Splash Screen"/>
-  <img src="screenshots/all_dishes.png" width="200" alt="All Dishes"/>
-  <img src="screenshots/dish_details.png" width="200" alt="Dish Details"/>
-  <img src="screenshots/add_dish.png" width="200" alt="Add Dish"/>
-</div>
-
-<div align="center">
-  <img src="screenshots/favorites.png" width="200" alt="Favorite Dishes"/>
-  <img src="screenshots/random_dish.png" width="200" alt="Random Dish"/>
-  <img src="screenshots/filter_dialog.png" width="200" alt="Filter"/>
-  <img src="screenshots/notification.png" width="200" alt="Notification"/>
-</div>
-
-> **Note:** To capture screenshots, run the app and use Android Studio's screenshot tool or device screenshot feature.
 
 ## 🔑 Key Learnings
 
