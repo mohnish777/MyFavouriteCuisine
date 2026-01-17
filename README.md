@@ -1,6 +1,21 @@
+<div align="center">
+
 # 🍽️ MyFavouriteCuisine
 
+### A Modern Android Food Management Application
+
+[![Android](https://img.shields.io/badge/Platform-Android-green.svg)](https://www.android.com/)
+[![Kotlin](https://img.shields.io/badge/Language-Kotlin-blue.svg)](https://kotlinlang.org/)
+[![API](https://img.shields.io/badge/API-29%2B-brightgreen.svg)](https://android-arsenal.com/api?level=29)
+[![Architecture](https://img.shields.io/badge/Architecture-MVVM-orange.svg)](https://developer.android.com/jetpack/guide)
+
 A modern Android application for managing and discovering your favorite dishes, built with the latest Android development best practices and technologies.
+
+<!-- Uncomment and add your app banner/logo here
+<img src="screenshots/app_banner.png" width="800" alt="App Banner"/>
+-->
+
+</div>
 
 ## 📱 About The Project
 
@@ -160,7 +175,22 @@ API_KEY="your_spoonacular_api_key_here"
 5. Run the app on an emulator or physical device
 
 ## 📸 Screenshots
-<!-- Add screenshots of your app here -->
+
+<div align="center">
+  <img src="screenshots/splash_screen.png" width="200" alt="Splash Screen"/>
+  <img src="screenshots/all_dishes.png" width="200" alt="All Dishes"/>
+  <img src="screenshots/dish_details.png" width="200" alt="Dish Details"/>
+  <img src="screenshots/add_dish.png" width="200" alt="Add Dish"/>
+</div>
+
+<div align="center">
+  <img src="screenshots/favorites.png" width="200" alt="Favorite Dishes"/>
+  <img src="screenshots/random_dish.png" width="200" alt="Random Dish"/>
+  <img src="screenshots/filter_dialog.png" width="200" alt="Filter"/>
+  <img src="screenshots/notification.png" width="200" alt="Notification"/>
+</div>
+
+> **Note:** To capture screenshots, run the app and use Android Studio's screenshot tool or device screenshot feature.
 
 ## 🔑 Key Learnings
 
